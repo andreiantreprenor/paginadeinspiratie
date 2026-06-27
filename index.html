@@ -1,1 +1,353 @@
-<h1>Pagina de inspiratie </h1>
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Citate motivaționale zilnice din cele mai inspiraționale cărți">
+<title>Pagina de Inspirație</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#080810">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100vh;background:#080810;font-family:'Georgia',serif;color:#fff;overflow-x:hidden;}
+#bg{position:fixed;inset:0;z-index:0;}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:0.28;transition:background 3s ease;}
+#o1{width:600px;height:600px;top:-200px;left:-200px;}
+#o2{width:500px;height:500px;bottom:-150px;right:-150px;}
+#o3{width:350px;height:350px;top:40%;left:40%;transform:translate(-50%,-50%);}
+#app{position:relative;z-index:1;width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.screen{display:none;width:100%;max-width:780px;padding:2.5rem 2rem;text-align:center;flex-direction:column;align-items:center;gap:1.2rem;}
+.screen.on{display:flex;}
+.spinner{width:32px;height:32px;border:1.5px solid rgba(255,255,255,0.1);border-top-color:rgba(255,255,255,0.5);border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 1rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.load-msg{font-family:'Helvetica Neue',sans-serif;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.badge{font-family:'Helvetica Neue',sans-serif;font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.big-name{font-size:clamp(2rem,5.5vw,3.2rem);font-style:italic;font-weight:400;color:rgba(255,255,255,0.9);line-height:1.2;}
+.desc{font-family:'Helvetica Neue',sans-serif;font-size:0.9rem;color:rgba(255,255,255,0.38);line-height:1.7;max-width:500px;}
+.cat-pill{font-family:'Helvetica Neue',sans-serif;font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.3rem 0.9rem;border:1px solid rgba(255,255,255,0.12);border-radius:50px;color:rgba(255,255,255,0.28);display:inline-block;}
+.btn-row{display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem;}
+button{font-family:'Helvetica Neue',sans-serif;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);padding:0.55rem 1.3rem;border-radius:50px;cursor:pointer;transition:all 0.2s;}
+button:hover{background:rgba(255,255,255,0.14);color:#fff;}
+button.prim{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3);color:#fff;}
+#s-amb{cursor:pointer;min-height:100vh;position:relative;}
+#qwrap{opacity:1;transition:opacity 0.75s ease;max-width:700px;}
+#qwrap.fade{opacity:0;}
+#qt{font-size:clamp(1.15rem,2.8vw,1.75rem);font-style:italic;line-height:1.72;color:rgba(255,255,255,0.88);margin-bottom:1.6rem;}
+#qt::before{content:'\201C';}
+#qt::after{content:'\201D';}
+#qa{font-family:'Helvetica Neue',sans-serif;font-size:0.82rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.38);}
+#qs{font-family:'Helvetica Neue',sans-serif;font-size:0.75rem;letter-spacing:0.05em;color:rgba(255,255,255,0.2);margin-top:0.3rem;font-style:italic;}
+#book-link{display:inline-block;margin-top:0.8rem;font-family:'Helvetica Neue',sans-serif;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);text-decoration:none;border:1px solid rgba(255,255,255,0.1);padding:0.3rem 0.9rem;border-radius:50px;transition:all 0.2s;}
+#book-link:hover{color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.3);}
+#qnum{position:fixed;top:1.4rem;left:1.4rem;font-family:'Helvetica Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;color:rgba(255,255,255,0.18);text-transform:uppercase;z-index:10;}
+#topbtns{position:fixed;top:1.2rem;right:1.2rem;display:flex;gap:0.4rem;z-index:10;}
+#topbtns button{padding:0.4rem 0.9rem;font-size:0.68rem;}
+#hint{position:fixed;bottom:3.5rem;left:50%;transform:translateX(-50%);font-family:'Helvetica Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;color:rgba(255,255,255,0.12);text-transform:uppercase;transition:opacity 2s;white-space:nowrap;}
+#pbar{position:fixed;bottom:0;left:0;height:2px;width:100%;z-index:5;}
+#prog{height:100%;background:rgba(255,255,255,0.35);transform-origin:left;transition:transform 30s linear;}
+/* BANNER RECLAME */
+#ad-banner{position:fixed;bottom:0;left:0;width:100%;z-index:20;background:rgba(8,8,16,0.85);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.06);padding:0.4rem 1rem;display:flex;align-items:center;justify-content:center;min-height:52px;}
+.ad-label{font-family:'Helvetica Neue',sans-serif;font-size:0.6rem;letter-spacing:0.1em;color:rgba(255,255,255,0.15);text-transform:uppercase;margin-right:0.5rem;flex-shrink:0;}
+.ad-slot{flex:1;text-align:center;font-family:'Helvetica Neue',sans-serif;font-size:0.75rem;color:rgba(255,255,255,0.25);}
+/* EDIT */
+#s-edit{gap:0.8rem;max-width:700px;text-align:left;}
+#s-edit .etitle{font-family:'Helvetica Neue',sans-serif;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.28);text-align:center;margin-bottom:0.2rem;}
+#e-name{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;font-family:'Georgia',serif;font-size:1.05rem;font-style:italic;padding:0.55rem 1rem;border-radius:8px;outline:none;}
+#elist{display:flex;flex-direction:column;gap:0.5rem;max-height:52vh;overflow-y:auto;}
+.eitem{display:flex;gap:0.5rem;align-items:flex-start;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:0.65rem 0.75rem;}
+.eitem textarea{flex:1;background:transparent;border:none;outline:none;color:rgba(255,255,255,0.8);font-family:'Georgia',serif;font-size:0.88rem;font-style:italic;resize:vertical;min-height:44px;line-height:1.55;}
+.eitem .dx{background:none;border:none;color:rgba(255,255,255,0.18);font-size:1rem;cursor:pointer;padding:0 0.2rem;flex-shrink:0;}
+.eitem .dx:hover{color:rgba(255,100,100,0.65);}
+#add-btn{width:100%;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);color:rgba(255,255,255,0.28);border-radius:8px;padding:0.55rem;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;}
+/* HIST */
+#s-hist{text-align:left;gap:0.5rem;max-width:700px;}
+.hlist{width:100%;max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:0.4rem;}
+.hitem{display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;gap:1rem;}
+.hitem-left{display:flex;flex-direction:column;gap:0.15rem;}
+.hitem-name{font-family:'Georgia',serif;font-size:0.92rem;font-style:italic;color:rgba(255,255,255,0.75);}
+.hitem-meta{font-family:'Helvetica Neue',sans-serif;font-size:0.7rem;letter-spacing:0.08em;color:rgba(255,255,255,0.25);}
+.hitem-del{background:none;border:none;color:rgba(255,255,255,0.15);font-size:0.9rem;cursor:pointer;padding:0.2rem 0.4rem;}
+.hitem-del:hover{color:rgba(255,100,100,0.6);}
+</style>
+</head>
+<body>
+<div id="bg"><div class="orb" id="o1"></div><div class="orb" id="o2"></div><div class="orb" id="o3"></div></div>
+
+<div id="app">
+  <div class="screen on" id="s-load">
+    <div class="spinner"></div>
+    <div class="load-msg" id="lmsg">AI alege subiectul zilei…</div>
+  </div>
+
+  <div class="screen" id="s-sub">
+    <div class="cat-pill" id="sub-cat"></div>
+    <div class="badge">Subiectul zilei</div>
+    <div class="big-name" id="sub-name"></div>
+    <div class="desc" id="sub-desc"></div>
+    <div class="btn-row">
+      <button class="prim" onclick="startAmbient()">&#9654; Începe</button>
+      <button onclick="showEdit()">&#9998; Editează</button>
+      <button onclick="regen()">&#8635; Alt subiect</button>
+      <button onclick="showHist()">&#128336; Istoric</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-amb">
+    <div id="qnum"></div>
+    <div id="topbtns">
+      <button onclick="ev(event);showEdit()">&#9998; Edit</button>
+      <button onclick="ev(event);regen()">&#8635; Alt subiect</button>
+      <button onclick="ev(event);showHist()">&#128336;</button>
+    </div>
+    <div id="qwrap">
+      <div id="qt"></div>
+      <div id="qa"></div>
+      <div id="qs"></div>
+      <a id="book-link" href="#" target="_blank" rel="noopener" onclick="ev(event)"></a>
+    </div>
+    <div id="hint">Apasă oriunde pentru citat următor</div>
+    <div id="pbar"><div id="prog"></div></div>
+  </div>
+
+  <div class="screen" id="s-edit">
+    <div class="etitle">&#9998; Editează subiectul și citatele</div>
+    <input id="e-name" type="text" placeholder="Numele subiectului…"/>
+    <div id="elist"></div>
+    <button id="add-btn" onclick="addItem('')">+ Adaugă citat</button>
+    <div class="btn-row" style="margin-top:0.8rem;">
+      <button class="prim" onclick="saveEdit()">&#10003; Salvează și pornește</button>
+      <button onclick="showSub()">&#10005; Anulează</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-hist">
+    <div style="font-family:'Helvetica Neue',sans-serif;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.28);text-align:center;">&#128336; Subiecte parcurse</div>
+    <div class="hlist" id="hlist"></div>
+    <div class="btn-row" style="margin-top:0.8rem;">
+      <button onclick="showSub()">&#8592; Înapoi</button>
+    </div>
+  </div>
+</div>
+
+<!-- BANNER RECLAME - înlocuiește cu codul AdSense când e aprobat -->
+<div id="ad-banner">
+  <span class="ad-label">Publicitate</span>
+  <div class="ad-slot" id="ad-slot">
+    <!-- Codul AdSense se pune aici -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> -->
+  </div>
+</div>
+
+<script>
+const STORE_KEY = 'df_history_v2';
+const PALETTE = [
+  ['#5b21b6','#1e3a8a','#064e3b'],
+  ['#9a3412','#1e3a5f','#3f1f00'],
+  ['#134e4a','#312e81','#78350f'],
+  ['#4c1d95','#064e3b','#7c2d12'],
+  ['#1e3a8a','#581c87','#14532d'],
+  ['#831843','#1e3a5f','#064e3b'],
+  ['#713f12','#1e3a8a','#4c1d95'],
+  ['#065f46','#1e1b4b','#7c2d12'],
+];
+
+// ID-uri afiliate — completezi cu ale tale când le primești
+const AFFILIATE = {
+  elefant: 'ID_TAU_ELEFANT',
+  libris:  'ID_TAU_LIBRIS',
+  emag:    'ID_TAU_EMAG',
+};
+
+const CATEGORIES = [
+  'sport și mentalitate de campion','filosofie și stoicism',
+  'antreprenoriat și inovație','leadership și viziune',
+  'artă și creativitate','știință și descoperire',
+  'reziliență și depășirea adversității','psihologie și comportament uman',
+  'spiritualitate și sens','finanțe și libertate financiară',
+  'natură și explorare','literatură și poveste',
+  'muzică și expresie','medicină și longevitate',
+  'diplomație și putere','educație și cunoaștere',
+  'arhitectură și design','film și vizualitate',
+  'matematică și logică','activism și schimbare socială',
+];
+
+let st = {subject:'',desc:'',cat:'',quotes:[],cur:-1,palIdx:0,timer:null,bookTitle:''};
+
+function loadHistory(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||'[]');}catch{return[];}}
+function saveHistory(h){try{localStorage.setItem(STORE_KEY,JSON.stringify(h));}catch{}}
+
+function addToHistory(subject,cat){
+  let h=loadHistory();
+  h=h.filter(x=>x.subject.toLowerCase()!==subject.toLowerCase());
+  h.unshift({subject,cat,date:new Date().toISOString().slice(0,10)});
+  if(h.length>120)h=h.slice(0,120);
+  saveHistory(h);
+}
+
+function getRecentSubjects(){
+  const h=loadHistory();
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-100);
+  return h.filter(x=>new Date(x.date)>cutoff).map(x=>x.subject);
+}
+
+function setPal(i){
+  const p=PALETTE[i%PALETTE.length];
+  document.getElementById('o1').style.background=p[0];
+  document.getElementById('o2').style.background=p[1];
+  document.getElementById('o3').style.background=p[2];
+}
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
+function showSub(){show('s-sub');}
+function ev(e){e.stopPropagation();}
+
+function pickCategory(){
+  const d=new Date();
+  const seed=d.getFullYear()*1000+d.getMonth()*31+d.getDate();
+  return CATEGORIES[seed%CATEGORIES.length];
+}
+
+function buildAffiliateLink(bookTitle){
+  if(!bookTitle)return null;
+  const q=encodeURIComponent(bookTitle);
+  return `https://www.elefant.ro/cauta?query=${q}&ref=${AFFILIATE.elefant}`;
+}
+
+async function generate(customCat){
+  show('s-load');
+  setPal(st.palIdx++);
+  const recent=getRecentSubjects();
+  const cat=customCat||pickCategory();
+  const today=new Date().toLocaleDateString('ro-RO',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const recentStr=recent.length>0?`\nSubiecte folosite recent (evită-le): ${recent.slice(0,30).join(', ')}`:'';
+  document.getElementById('lmsg').textContent='AI alege subiectul din: '+cat+'…';
+
+  try{
+    const r=await fetch('/api/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({cat,recent})
+    });
+    const parsed=await r.json();
+    if(parsed.error)throw new Error(parsed.error);
+    st.subject=parsed.subject;
+    st.desc=parsed.desc;
+    st.cat=parsed.cat||cat;
+    st.quotes=parsed.quotes;
+    st.bookTitle=parsed.bookTitle||'';
+    addToHistory(st.subject,st.cat);
+    document.getElementById('sub-name').textContent=parsed.subject;
+    document.getElementById('sub-desc').textContent=parsed.desc;
+    document.getElementById('sub-cat').textContent=st.cat;
+    show('s-sub');
+  }catch(e){
+    document.getElementById('lmsg').textContent='Eroare — reîncearcă.';
+    console.error(e);
+  }
+}
+
+function regen(){
+  clearTimeout(st.timer);
+  const cats=CATEGORIES.filter(c=>c!==st.cat);
+  generate(cats[Math.floor(Math.random()*cats.length)]);
+}
+
+function startAmbient(){st.cur=-1;show('s-amb');nextQ();}
+
+function nextQ(){
+  const w=document.getElementById('qwrap');
+  w.classList.add('fade');
+  clearTimeout(st.timer);
+  setTimeout(()=>{
+    st.cur=(st.cur+1)%st.quotes.length;
+    const q=st.quotes[st.cur];
+    document.getElementById('qt').textContent=q.text;
+    document.getElementById('qa').textContent=st.subject;
+    document.getElementById('qs').textContent=q.source?'— '+q.source:'';
+    document.getElementById('qnum').textContent=(st.cur+1)+' / '+st.quotes.length+' · '+st.cat;
+
+    // Affiliate link
+    const link=document.getElementById('book-link');
+    const bookName=q.source||st.bookTitle;
+    const affiliateUrl=buildAffiliateLink(bookName);
+    if(affiliateUrl&&bookName){
+      link.href=affiliateUrl;
+      link.textContent='📖 Găsește cartea pe Elefant.ro';
+      link.style.display='inline-block';
+    } else {
+      link.style.display='none';
+    }
+
+    w.classList.remove('fade');
+    resetProg();
+    setPal(st.palIdx+st.cur);
+  },700);
+}
+
+document.getElementById('s-amb').addEventListener('click',nextQ);
+
+function resetProg(){
+  const b=document.getElementById('prog');
+  b.style.transition='none';b.style.transform='scaleX(1)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    b.style.transition='transform 30s linear';b.style.transform='scaleX(0)';
+  }));
+  clearTimeout(st.timer);
+  st.timer=setTimeout(nextQ,30000);
+}
+
+function showEdit(){
+  clearTimeout(st.timer);
+  document.getElementById('e-name').value=st.subject;
+  const el=document.getElementById('elist');el.innerHTML='';
+  st.quotes.forEach(q=>addItem(q.text));
+  show('s-edit');
+}
+
+function addItem(txt){
+  const el=document.getElementById('elist');
+  const d=document.createElement('div');d.className='eitem';
+  d.innerHTML=`<textarea placeholder="Citatul…">${txt||''}</textarea><button class="dx" onclick="this.parentElement.remove()">&#10005;</button>`;
+  el.appendChild(d);
+}
+
+function saveEdit(){
+  const name=document.getElementById('e-name').value.trim();
+  const qs=[];
+  document.querySelectorAll('#elist .eitem textarea').forEach(t=>{
+    const v=t.value.trim();if(v)qs.push({text:v,source:name});
+  });
+  if(!name||qs.length===0)return;
+  st.subject=name;st.quotes=qs;
+  document.getElementById('sub-name').textContent=name;
+  startAmbient();
+}
+
+function showHist(){
+  clearTimeout(st.timer);
+  const h=loadHistory();
+  const el=document.getElementById('hlist');el.innerHTML='';
+  if(h.length===0){
+    el.innerHTML='<div style="color:rgba(255,255,255,0.25);font-size:0.85rem;text-align:center;padding:1rem;">Niciun subiect încă.</div>';
+  } else {
+    h.forEach((item,i)=>{
+      const d=document.createElement('div');d.className='hitem';
+      d.innerHTML=`<div class="hitem-left"><div class="hitem-name">${item.subject}</div><div class="hitem-meta">${item.cat||''} · ${item.date}</div></div><button class="hitem-del" onclick="delHist(${i})">&#10005;</button>`;
+      el.appendChild(d);
+    });
+  }
+  show('s-hist');
+}
+
+function delHist(i){let h=loadHistory();h.splice(i,1);saveHistory(h);showHist();}
+
+generate();
+setTimeout(()=>{const h=document.getElementById('hint');if(h)h.style.opacity='0';},4500);
+
+// PWA service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(console.error);
+}
+</script>
+</body>
+</html>
