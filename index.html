@@ -68,9 +68,9 @@ button.prim{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3)
 <div id="bg"><div class="orb" id="o1"></div><div class="orb" id="o2"></div><div class="orb" id="o3"></div></div>
 <div id="app">
   <div class="screen on" id="s-load">
-    <img src="/logo.png" alt="Pagina de Inspirație" style="width:120px;height:auto;opacity:0.9;margin-bottom:1.5rem;filter:brightness(0) invert(1);">
+    <img src="/logo.png" alt="Pagina de Inspirație" style="width:200px;height:auto;opacity:0.95;margin-bottom:1.8rem;">
     <div class="spinner"></div>
-    <div class="load-msg" id="lmsg">Se alege subiectul zilei…</div>
+    <div class="load-msg" id="lmsg">Se pregătește inspirația zilei…</div>
   </div>
   <div class="screen" id="s-sub">
     <div class="cat-pill" id="sub-cat"></div>
@@ -177,7 +177,7 @@ async function generate(customCat){
   setPal(st.palIdx++);
   const recent=getRecentSubjects();
   const cat=customCat||pickCategory();
-  document.getElementById('lmsg').textContent='AI alege subiectul din: '+cat+'…';
+  document.getElementById('lmsg').textContent='Un moment…';
   try{
     const r=await fetch('/api/generate',{
       method:'POST',
