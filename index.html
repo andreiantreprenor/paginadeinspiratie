@@ -68,6 +68,8 @@ button.prim{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3)
 <div id="bg"><div class="orb" id="o1"></div><div class="orb" id="o2"></div><div class="orb" id="o3"></div></div>
 <div id="app">
   <div class="screen on" id="s-load">
+    <div style="font-family:'Georgia',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-style:italic;color:rgba(255,255,255,0.85);letter-spacing:0.02em;margin-bottom:0.3rem;">Pagina de Inspirație</div>
+    <div style="font-family:'Helvetica Neue',sans-serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:2.5rem;">citate din cărți care schimbă vieți</div>
     <div class="spinner"></div>
     <div class="load-msg" id="lmsg">AI alege subiectul zilei…</div>
   </div>
@@ -78,7 +80,6 @@ button.prim{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3)
     <div class="desc" id="sub-desc"></div>
     <div class="btn-row">
       <button class="prim" onclick="startAmbient()">&#9654; Începe</button>
-      <button onclick="showEdit()">&#9998; Editează</button>
       <button onclick="regen()">&#8635; Alt subiect</button>
       <button onclick="showHist()">&#128336; Istoric</button>
     </div>
@@ -86,7 +87,6 @@ button.prim{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3)
   <div class="screen" id="s-amb">
     <div id="qnum"></div>
     <div id="topbtns">
-      <button onclick="ev(event);showEdit()">&#9998; Edit</button>
       <button onclick="ev(event);regen()">&#8635; Alt subiect</button>
       <button onclick="ev(event);showHist()">&#128336;</button>
     </div>
