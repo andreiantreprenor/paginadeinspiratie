@@ -12,7 +12,8 @@ export default async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  const { cat, recent, saveToCache } = req.body;
+  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+  const { cat, recent, saveToCache } = body;
   const today = new Date().toLocaleDateString('ro-RO', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
@@ -65,7 +66,6 @@ Reguli stricte:
     if (!match) throw new Error('No JSON in response');
     const parsed = JSON.parse(match[0]);
 
-    // Salvează în cache (Blob) dacă e cerut explicit (de la cron)
     if (saveToCache) {
       try {
         await put('today.json', JSON.stringify({ ...parsed, cat, generatedAt: new Date().toISOString() }), {
