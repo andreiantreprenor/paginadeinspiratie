@@ -12,7 +12,8 @@ export default async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+  console.log('RAW BODY:', JSON.stringify(req.body));
+  const body = req.body || {};
   const { cat, recent, saveToCache } = body;
   const today = new Date().toLocaleDateString('ro-RO', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
