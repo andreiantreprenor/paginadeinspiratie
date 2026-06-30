@@ -13,6 +13,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   console.log('RAW BODY:', JSON.stringify(req.body));
+  console.log('RAW BODY:', JSON.stringify(req.body));
   const body = req.body || {};
   const { cat, recent, saveToCache } = body;
   const today = new Date().toLocaleDateString('ro-RO', {
