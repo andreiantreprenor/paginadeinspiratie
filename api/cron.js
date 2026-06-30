@@ -19,7 +19,7 @@ function pickCategory() {
 
 function buildCaption(quote, author, source, type) {
   const hashtags = `\n\n#inspiratie #citate #motivatie #dezvoltarepersonala #carti #citatedezilei #romania #succes #mindset #paginadeinspiratie`;
-  
+ 
   if (type === 'morning') {
     return `🌅 Bună dimineața!\n\n"${quote}"\n\n— ${author}${source ? `, ${source}` : ''}\n\n💡 Începe ziua cu inspirație de la paginadeinspiratie.ro${hashtags}`;
   } else {
@@ -37,17 +37,21 @@ export default async function handler(req, res) {
   }
 
   const { type } = req.body;
-  // type: 'morning_post' (08:00), 'morning_story' (10:00), 
-  //       'afternoon_story' (15:00), 'evening_post' (20:00)
+  // type: 'morning_post' (08:00), 'morning_story' (10:00),
+  //      'afternoon_story' (15:00), 'evening_post' (20:00)
 
   const baseUrl = `https://paginadeinspiratie.ro`;
 
   try {
-    // 1. Generează subiect și citate
+    // 1. Generează subiect și citate (salvează în cache doar pentru morning_post)
     const generateRes = await fetch(`${baseUrl}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cat: pickCategory(), recent: [] }),
+      body: JSON.stringify({
+        cat: pickCategory(),
+        recent: [],
+        saveToCache: type === 'morning_post',
+      }),
     });
     const { subject, desc, quotes, cat } = await generateRes.json();
 
