@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-JT81G0KBL8"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-JT81G0KBL8');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Citate motivaționale zilnice din cele mai inspiraționale cărți">
@@ -87,16 +78,16 @@ button.prim{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3)
     <div class="big-name" id="sub-name"></div>
     <div class="desc" id="sub-desc"></div>
     <div class="btn-row">
-      <button class="prim" onclick="startAmbient()">&#9654; Începe</button>
-      <button onclick="regen()">&#8635; Alt subiect</button>
-      <button onclick="showHist()">&#128336; Istoric</button>
+      <button class="prim" onclick="startAmbient()">▶ Începe</button>
+      <button onclick="regen()">↻ Alt subiect</button>
+      <button onclick="showHist()">🕐 Istoric</button>
     </div>
   </div>
   <div class="screen" id="s-amb">
     <div id="qnum"></div>
     <div id="topbtns">
-      <button onclick="ev(event);regen()">&#8635; Alt subiect</button>
-      <button onclick="ev(event);showHist()">&#128336;</button>
+      <button onclick="ev(event);regen()">↻ Alt subiect</button>
+      <button onclick="ev(event);showHist()">🕐</button>
     </div>
     <div id="qwrap">
       <div id="qt"></div>
@@ -108,19 +99,19 @@ button.prim{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3)
     <div id="pbar"><div id="prog"></div></div>
   </div>
   <div class="screen" id="s-edit">
-    <div class="etitle">&#9998; Editează subiectul și citatele</div>
+    <div class="etitle">✎ Editează subiectul și citatele</div>
     <input id="e-name" type="text" placeholder="Numele subiectului…"/>
     <div id="elist"></div>
     <button id="add-btn" onclick="addItem('')">+ Adaugă citat</button>
     <div class="btn-row" style="margin-top:0.8rem;">
-      <button class="prim" onclick="saveEdit()">&#10003; Salvează și pornește</button>
-      <button onclick="showSub()">&#10005; Anulează</button>
+      <button class="prim" onclick="saveEdit()">✓ Salvează și pornește</button>
+      <button onclick="showSub()">✕ Anulează</button>
     </div>
   </div>
   <div class="screen" id="s-hist">
-    <div style="font-family:'Helvetica Neue',sans-serif;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.28);text-align:center;">&#128336; Subiecte parcurse</div>
+    <div style="font-family:'Helvetica Neue',sans-serif;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.28);text-align:center;">🕐 Subiecte parcurse</div>
     <div class="hlist" id="hlist"></div>
-    <div class="btn-row" style="margin-top:0.8rem;"><button onclick="showSub()">&#8592; Înapoi</button></div>
+    <div class="btn-row" style="margin-top:0.8rem;"><button onclick="showSub()">← Înapoi</button></div>
   </div>
 </div>
 <div id="ad-banner">
@@ -181,6 +172,30 @@ function pickCategory(){
   const seed=d.getFullYear()*1000+d.getMonth()*31+d.getDate();
   return CATEGORIES[seed%CATEGORIES.length];
 }
+async function loadToday() {
+  show('s-load');
+  setPal(st.palIdx++);
+  document.getElementById('lmsg').textContent='Se pregătește inspirația zilei…';
+  try{
+    const r=await fetch('/api/today');
+    if(!r.ok) throw new Error('no cache');
+    const parsed=await r.json();
+    st.subject=parsed.subject;
+    st.desc=parsed.desc;
+    st.cat=parsed.cat||'';
+    st.quotes=parsed.quotes;
+    st.bookTitle=parsed.bookTitle||'';
+    addToHistory(st.subject,st.cat);
+    document.getElementById('sub-name').textContent=parsed.subject;
+    document.getElementById('sub-desc').textContent=parsed.desc;
+    document.getElementById('sub-cat').textContent=st.cat;
+    show('s-sub');
+  }catch(e){
+    // Fallback: generează live dacă nu există cache încă
+    loadToday();
+  }
+}
+
 async function generate(customCat){
   show('s-load');
   setPal(st.palIdx++);
@@ -255,7 +270,7 @@ function showEdit(){
 function addItem(txt){
   const el=document.getElementById('elist');
   const d=document.createElement('div');d.className='eitem';
-  d.innerHTML='<textarea placeholder="Citatul…">'+( txt||'')+'</textarea><button class="dx" onclick="this.parentElement.remove()">&#10005;</button>';
+  d.innerHTML='<textarea placeholder="Citatul…">'+( txt||'')+'</textarea><button class="dx" onclick="this.parentElement.remove()">✕</button>';
   el.appendChild(d);
 }
 function saveEdit(){
@@ -278,7 +293,7 @@ function showHist(){
   } else {
     h.forEach((item,i)=>{
       const d=document.createElement('div');d.className='hitem';
-      d.innerHTML='<div class="hitem-left"><div class="hitem-name">'+item.subject+'</div><div class="hitem-meta">'+(item.cat||'')+' · '+item.date+'</div></div><button class="hitem-del" onclick="delHist('+i+')">&#10005;</button>';
+      d.innerHTML='<div class="hitem-left"><div class="hitem-name">'+item.subject+'</div><div class="hitem-meta">'+(item.cat||'')+' · '+item.date+'</div></div><button class="hitem-del" onclick="delHist('+i+')">✕</button>';
       el.appendChild(d);
     });
   }
@@ -290,6 +305,24 @@ setTimeout(()=>{const h=document.getElementById('hint');if(h)h.style.opacity='0'
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').catch(console.error);
 }
+
+// Keepalive — previne expirarea sesiunii
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') {
+    // Când utilizatorul revine pe pagină, verifică dacă citatul e activ
+    if(st.quotes.length === 0) {
+      generate();
+    }
+  }
+});
+
+// Ping la fiecare 4 minute să țină pagina activă
+setInterval(() => {
+  if(document.visibilityState === 'visible' && st.quotes.length > 0) {
+    // Pagina e activă, nu face nimic
+    console.log('keepalive');
+  }
+}, 240000);
 </script>
 </body>
 </html>
