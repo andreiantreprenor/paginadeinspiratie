@@ -68,14 +68,17 @@ Reguli stricte:
 
     if (saveToCache) {
       try {
-        await put('today.json', JSON.stringify({ ...parsed, cat, generatedAt: new Date().toISOString() }), {
+        const blobResult = await put('today.json', JSON.stringify({ ...parsed, cat, generatedAt: new Date().toISOString() }), {
           access: 'public',
           addRandomSuffix: false,
           allowOverwrite: true,
         });
+        console.log('Blob saved:', blobResult.url);
       } catch (blobErr) {
-        console.error('Blob save error:', blobErr);
+        console.error('Blob save error:', blobErr.message, blobErr);
       }
+    } else {
+      console.log('saveToCache was falsy:', saveToCache);
     }
 
     res.status(200).json(parsed);
