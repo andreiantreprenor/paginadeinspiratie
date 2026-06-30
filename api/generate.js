@@ -1,3 +1,5 @@
+import { put } from '@vercel/blob';
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,7 +12,7 @@ export default async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  const { cat, recent } = req.body;
+  const { cat, recent, saveToCache } = req.body;
   const today = new Date().toLocaleDateString('ro-RO', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
@@ -62,6 +64,19 @@ Reguli stricte:
     const match = raw.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('No JSON in response');
     const parsed = JSON.parse(match[0]);
+
+    // Salvează în cache (Blob) dacă e cerut explicit (de la cron)
+    if (saveToCache) {
+      try {
+        await put('today.json', JSON.stringify({ ...parsed, cat, generatedAt: new Date().toISOString() }), {
+          access: 'public',
+          addRandomSuffix: false,
+          allowOverwrite: true,
+        });
+      } catch (blobErr) {
+        console.error('Blob save error:', blobErr);
+      }
+    }
 
     res.status(200).json(parsed);
   } catch (err) {
