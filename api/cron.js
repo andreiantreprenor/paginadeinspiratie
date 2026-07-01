@@ -19,7 +19,7 @@ function pickCategory() {
 
 function buildCaption(quote, author, source, type) {
   const hashtags = `\n\n#inspiratie #citate #motivatie #dezvoltarepersonala #carti #citatedezilei #romania #succes #mindset #paginadeinspiratie`;
- 
+
   if (type === 'morning') {
     return `🌅 Bună dimineața!\n\n"${quote}"\n\n— ${author}${source ? `, ${source}` : ''}\n\n💡 Începe ziua cu inspirație de la paginadeinspiratie.ro${hashtags}`;
   } else {
@@ -28,17 +28,28 @@ function buildCaption(quote, author, source, type) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  // Vercel Cron trimite mereu GET, niciodată POST
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Verificare secret pentru securitate
-  const secret = req.headers['x-cron-secret'];
-  if (secret !== process.env.CRON_SECRET) {
+  // Vercel Cron trimite secretul automat ca "Authorization: Bearer <CRON_SECRET>", nu ca "x-cron-secret"
+  const authHeader = req.headers['authorization'];
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const { type } = req.body;
-  // type: 'morning_post' (08:00), 'morning_story' (10:00),
-  //      'afternoon_story' (15:00), 'evening_post' (20:00)
+  // GET nu are body -> tipul postării se deduce din ora UTC curentă, conform vercel.json (6, 8, 13, 18 UTC)
+  const utcHour = new Date().getUTCHours();
+  const typeByHour = {
+    6: 'morning_post',
+    8: 'morning_story',
+    13: 'afternoon_story',
+    18: 'evening_post',
+  };
+  const type = typeByHour[utcHour];
+
+  if (!type) {
+    return res.status(200).json({ skipped: true, reason: `Ora UTC ${utcHour} nu corespunde niciunui slot programat` });
+  }
 
   const baseUrl = `https://paginadeinspiratie.ro`;
 
