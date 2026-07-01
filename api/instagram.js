@@ -3,9 +3,21 @@ const PAGE_ID = process.env.FACEBOOK_PAGE_ID;
 const TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN;
 const BASE = 'https://graph.facebook.com/v25.0';
 
+async function waitUntilReady(containerId) {
+  let status = 'IN_PROGRESS';
+  let attempts = 0;
+  while (status !== 'FINISHED' && attempts < 10) {
+    await new Promise(r => setTimeout(r, 2000));
+    const check = await fetch(`${BASE}/${containerId}?fields=status_code&access_token=${TOKEN}`).then(r => r.json());
+    status = check.status_code;
+    attempts++;
+    if (status === 'ERROR') throw new Error('Container processing failed (status ERROR)');
+  }
+  if (status !== 'FINISHED') throw new Error('Container nu s-a procesat la timp (timeout)');
+}
+
 // Postare imagine pe Instagram Feed
 async function postInstagramFeed(imageUrl, caption) {
-  // Pas 1: Creează container media
   const container = await fetch(`${BASE}/${IG_ID}/media`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -18,7 +30,8 @@ async function postInstagramFeed(imageUrl, caption) {
 
   if (container.error) throw new Error('IG container: ' + container.error.message);
 
-  // Pas 2: Publică
+  await waitUntilReady(container.id);
+
   const publish = await fetch(`${BASE}/${IG_ID}/media_publish`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -39,13 +52,14 @@ async function postInstagramStory(imageUrl) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       image_url: imageUrl,
-      media_type: 'IMAGE',
-      is_carousel_item: false,
+      media_type: 'STORIES',
       access_token: TOKEN,
     }),
   }).then(r => r.json());
 
   if (container.error) throw new Error('Story container: ' + container.error.message);
+
+  await waitUntilReady(container.id);
 
   const publish = await fetch(`${BASE}/${IG_ID}/media_publish`, {
     method: 'POST',
@@ -87,13 +101,11 @@ export default async function handler(req, res) {
     const results = {};
 
     if (type === 'morning_post' || type === 'evening_post') {
-      // Post feed Instagram + Facebook
       results.instagram = await postInstagramFeed(imageUrl, caption);
       results.facebook = await postFacebookPage(imageUrl, caption);
     }
 
     if (type === 'morning_story' || type === 'afternoon_story') {
-      // Story Instagram
       results.story = await postInstagramStory(storyImageUrl || imageUrl);
     }
 
