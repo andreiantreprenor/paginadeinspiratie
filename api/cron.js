@@ -28,16 +28,20 @@ function buildCaption(quote, author, source, type) {
 }
 
 export default async function handler(req, res) {
-  // Vercel Cron trimite mereu GET, niciodată POST
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Vercel Cron trimite secretul automat ca "Authorization: Bearer <CRON_SECRET>", nu ca "x-cron-secret"
+  // Autentificare: header (Vercel Cron real) SAU query param (test manual din browser)
   const authHeader = req.headers['authorization'];
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const querySecret = req.query.secret;
+  const isAuthorized =
+    authHeader === `Bearer ${process.env.CRON_SECRET}` ||
+    querySecret === process.env.CRON_SECRET;
+
+  if (!isAuthorized) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  // GET nu are body -> tipul postării se deduce din ora UTC curentă, conform vercel.json (6, 8, 13, 18 UTC)
+  // Pentru test manual, permite forțarea tipului direct din URL (?type=morning_post)
   const utcHour = new Date().getUTCHours();
   const typeByHour = {
     6: 'morning_post',
@@ -45,7 +49,7 @@ export default async function handler(req, res) {
     13: 'afternoon_story',
     18: 'evening_post',
   };
-  const type = typeByHour[utcHour];
+  const type = req.query.type || typeByHour[utcHour];
 
   if (!type) {
     return res.status(200).json({ skipped: true, reason: `Ora UTC ${utcHour} nu corespunde niciunui slot programat` });
@@ -54,7 +58,6 @@ export default async function handler(req, res) {
   const baseUrl = `https://paginadeinspiratie.ro`;
 
   try {
-    // 1. Generează subiect și citate (salvează în cache doar pentru morning_post)
     const generateRes = await fetch(`${baseUrl}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -68,7 +71,6 @@ export default async function handler(req, res) {
 
     if (!quotes || quotes.length === 0) throw new Error('No quotes generated');
 
-    // 2. Alege citatul în funcție de tipul postării
     const quoteIndex = {
       morning_post: 0,
       morning_story: 1,
@@ -78,7 +80,6 @@ export default async function handler(req, res) {
 
     const quote = quotes[quoteIndex] || quotes[0];
 
-    // 3. Generează imagine
     const isStory = type === 'morning_story' || type === 'afternoon_story';
     const imageRes = await fetch(`${baseUrl}/api/image`, {
       method: 'POST',
@@ -91,11 +92,9 @@ export default async function handler(req, res) {
     });
     const { url: imageUrl } = await imageRes.json();
 
-    // 4. Construiește caption
     const isEvening = type === 'evening_post';
     const caption = buildCaption(quote.text, subject, quote.source, isEvening ? 'evening' : 'morning');
 
-    // 5. Postează pe Instagram/Facebook
     const postRes = await fetch(`${baseUrl}/api/instagram`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
